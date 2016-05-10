@@ -1,0 +1,686 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ContentFilters</key>
+	<dict/>
+	<key>auto_connect</key>
+	<true/>
+	<key>data</key>
+	<dict>
+		<key>connection</key>
+		<dict>
+			<key>database</key>
+			<string>test</string>
+			<key>host</key>
+			<string>localhost</string>
+			<key>name</key>
+			<string>localhost</string>
+			<key>rdbms_type</key>
+			<string>mysql</string>
+			<key>sslCACertFileLocation</key>
+			<string></string>
+			<key>sslCACertFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>sslCertificateFileLocation</key>
+			<string></string>
+			<key>sslCertificateFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>sslKeyFileLocation</key>
+			<string></string>
+			<key>sslKeyFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>type</key>
+			<string>SPSocketConnection</string>
+			<key>useSSL</key>
+			<integer>0</integer>
+			<key>user</key>
+			<string></string>
+		</dict>
+		<key>session</key>
+		<dict>
+			<key>connectionEncoding</key>
+			<string>latin1</string>
+			<key>contentFilter</key>
+			<dict/>
+			<key>contentPageNumber</key>
+			<integer>1</integer>
+			<key>contentSelection</key>
+			<data>
+			YnBsaXN0MDDUAQIDBAUGJCVYJHZlcnNpb25YJG9iamVjdHNZJGFy
+			Y2hpdmVyVCR0b3ASAAGGoKgHCBMUFRYaIVUkbnVsbNMJCgsMDxJX
+			TlMua2V5c1pOUy5vYmplY3RzViRjbGFzc6INDoACgAOiEBGABIAF
+			gAdUdHlwZVRyb3dzXxAdU2VsZWN0aW9uRGV0YWlsVHlwZU5TSW5k
+			ZXhTZXTSFwsYGVxOU1JhbmdlQ291bnQQAIAG0hscHR5aJGNsYXNz
+			bmFtZVgkY2xhc3Nlc1pOU0luZGV4U2V0oh8gWk5TSW5kZXhTZXRY
+			TlNPYmplY3TSGxwiI1xOU0RpY3Rpb25hcnmiIiBfEA9OU0tleWVk
+			QXJjaGl2ZXLRJidUZGF0YYABAAgAEQAaACMALQAyADcAQABGAE0A
+			VQBgAGcAagBsAG4AcQBzAHUAdwB8AIEAoQCmALMAtQC3ALwAxwDQ
+			ANsA3gDpAPIA9wEEAQcBGQEcASEAAAAAAAACAQAAAAAAAAAoAAAA
+			AAAAAAAAAAAAAAABIw==
+			</data>
+			<key>contentSortColIsAsc</key>
+			<true/>
+			<key>contentViewport</key>
+			<string>{{0, 0}, {1166, 607}}</string>
+			<key>isToolbarVisible</key>
+			<true/>
+			<key>queries</key>
+			<string>SELECT name
+FROM Beers
+WHERE manf = 'Anheuser-Busch';
+
+SELECT *
+FROM Beers
+WHERE manf = 'Anheuser-Busch';
+
+SELECT name AS beer, manf
+FROM Beers
+WHERE manf = 'Anheuser-Busch';
+
+SELECT bar, beer,
+	price * 120 AS priceInYen
+FROM Sells;
+
+SELECT drinker, 'likes Bud' AS whoLikesBud
+FROM Likes
+WHERE beer = 'Bud';
+
+SELECT drinker, concat('likes ', beer) as whoLikesWhat
+FROM Likes;
+
+SELECT price
+FROM Sells
+WHERE bar = 'Joe''s Bar' AND
+		beer = 'Bud';
+
+SELECT name
+FROM Drinkers
+WHERE phone LIKE '%555-____';
+
+SELECT bar
+FROM Sells
+WHERE price &lt; 2.00 OR price &gt;= 2.00;
+
+select count(*)
+from Sells;
+
+select count(price)
+from Sells;
+
+SELECT bar
+FROM Sells
+WHERE price &lt; 2.00 OR price &gt;= 2.00 OR price is null;
+
+-- multi-relation queries
+
+SELECT beer
+FROM Likes, Frequents
+WHERE bar = 'Joe''s Bar' AND
+		Frequents.drinker = Likes.drinker;
+
+-- tuple variable
+-- find all pairs of beers made by same manf.
+
+SELECT b1.name, b2.name
+FROM Beers b1, Beers b2
+WHERE b1.manf = b2.manf AND
+		b1.name &lt; b2.name;
+
+-- subqueries
+
+-- bars that sell summerbrew at same price as bud solde at joe
+
+-- without subquery
+select S.bar
+from sells S, sells S1
+where S.beer = 'Summerbrew' and 
+	S.price = S1.price and
+	S1.bar = 'Joe''s bar' and
+	S1.beer = 'Bud';
+
+-- with subquery
+select bar
+from sells S
+where beer = 'Summerbrew' and 
+	price = 
+		(select price 
+		 from sells
+		 where bar = 'Joe''s bar' and
+			beer = 'Bud');
+
+-- find name and manf of beers that Bill likes
+
+-- without subquery
+select name, manf
+from beers, likes
+where beers.name = likes.beer and likes.drinker = 'Bill';
+
+-- with subquery
+select name, manf
+from beers
+where name in (select beer from likes where drinker = 'Bill');
+
+-- exists
+
+-- find unique beer by its manufacturer
+
+select name
+from beers b1
+where not exists(select name from beers b2 where
+	b2.name != b1.name and b2.manf = b1.manf);
+
+
+-- find beers sold at the highest price
+
+select beer
+from sells
+where price &gt;= all (select price from sells where price is not null);
+
+-- set 
+
+-- find drinker and beer s.t.
+-- drinker likes the beer
+-- and drinker frequents at least one bar that sells the beer
+
+(select drinker, beer
+from likes)
+union
+(select drinker, beer
+from frequents, sells
+where frequents.bar = sells.bar);
+
+-- no intersect in mysql
+-- alternative
+
+-- use join
+select distinct likes.drinker, likes.beer
+from likes, frequents, sells
+where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar;
+
+-- or 
+select drinker, beer
+from likes
+where  exists(
+	select * 
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar);
+
+-- find drinker, beer s.t.
+-- drinker likes the bear but does not go to any bar that sells the beer
+
+-- no difference/except in mysql
+(select drinker, beer
+from likes)
+except
+-- these are pairs where drinker does go to bar that sells the beer
+(select drinker, beer
+from frequents, sells
+where frequents.bar = sells.bar);
+
+select drinker, beer
+from likes
+where not exists(
+	select * 
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar);
+
+-- or use not in
+select drinker, beer
+from likes
+where (drinker, beer) not in (
+	select frequents.drinker, sells.beer
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar);
+
+
+-- or use left outer join
+
+select distinct likes.drinker, likes.beer
+from likes left outer join 
+	(select distinct frequents.drinker, sells.beer 
+		from frequents, sells
+		where frequents.bar = sells.bar) as t
+ on likes.drinker = t.drinker
+	and likes.beer = t.beer
+where t.drinker is null and t.beer is null;
+
+-- check all results of left outer join
+select *
+from likes left outer join 
+	(select distinct frequents.drinker, sells.beer 
+		from frequents, sells
+		where frequents.bar = sells.bar) as t
+ on likes.drinker = t.drinker
+	and likes.beer = t.beer;
+
+-- note that this does not work
+-- it will return drinker and beer as long as 
+-- there is another drinker in frequents
+select distinct likes.drinker, likes.beer
+from likes, frequents, sells
+where (likes.drinker != frequents.drinker
+	or likes.beer != sells.beer)
+	and frequents.bar = sells.bar; 
+
+
+-- aggregation
+
+SELECT beer, AVG(price)
+FROM Sells
+GROUP BY beer;
+
+-- find avg price of beer either served by at least 3 bars or
+-- manf by Pete's
+SELECT beer, AVG(price)
+FROM Sells
+GROUP BY beer
+HAVING COUNT(bar) &gt;= 3 OR
+	beer IN (SELECT name
+			   FROM Beers
+			   WHERE manf = 'Pete''s');
+
+
+</string>
+			<key>table</key>
+			<string>Likes</string>
+			<key>view</key>
+			<string>SP_VIEW_CUSTOMQUERY</string>
+			<key>windowVerticalDividerPosition</key>
+			<real>200</real>
+		</dict>
+	</dict>
+	<key>encrypted</key>
+	<false/>
+	<key>format</key>
+	<string>connection</string>
+	<key>queryFavorites</key>
+	<array/>
+	<key>queryHistory</key>
+	<array>
+		<string>-- find avg price of beer either served by at least 3 bars or
+-- manf by Pete's
+SELECT beer, AVG(price)
+FROM Sells
+GROUP BY beer
+HAVING COUNT(bar) &gt;= 3 OR
+	beer IN (SELECT name
+			   FROM Beers
+			   WHERE manf = 'Pete''s')</string>
+		<string>-- check all results of left outer join
+select *
+from likes left outer join 
+	(select distinct frequents.drinker, sells.beer 
+		from frequents, sells
+		where frequents.bar = sells.bar) as t
+ on likes.drinker = t.drinker
+	and likes.beer = t.beer</string>
+		<string>-- or use left outer join
+
+select distinct likes.drinker, likes.beer
+from likes left outer join 
+	(select distinct frequents.drinker, sells.beer 
+		from frequents, sells
+		where frequents.bar = sells.bar) as t
+ on likes.drinker = t.drinker
+	and likes.beer = t.beer
+where t.drinker is null and t.beer is null</string>
+		<string>-- or use not in
+select drinker, beer
+from likes
+where (drinker, beer) not in (
+	select frequents.drinker, sells.beer
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar)</string>
+		<string>select drinker, beer
+from likes
+where not exists(
+	select * 
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar)</string>
+		<string>-- find drinker, beer s.t.
+-- drinker likes the bear but does not go to any bar that sells the beer
+
+-- no difference/except in mysql
+(select drinker, beer
+from likes)
+except
+-- these are pairs where drinker does go to bar that sells the beer
+(select drinker, beer
+from frequents, sells
+where frequents.bar = sells.bar)</string>
+		<string>-- or 
+select drinker, beer
+from likes
+where  exists(
+	select * 
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar)</string>
+		<string>-- no intersect in mysql
+-- alternative
+
+-- use join
+select distinct likes.drinker, likes.beer
+from likes, frequents, sells
+where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar</string>
+		<string>-- set 
+
+-- find drinker and beer s.t.
+-- drinker likes the beer
+-- and drinker frequents at least one bar that sells the beer
+
+(select drinker, beer
+from likes)
+union
+(select drinker, beer
+from frequents, sells
+where frequents.bar = sells.bar)</string>
+		<string>-- find beers sold at the highest price
+
+select beer
+from sells
+where price &gt;= all (select price from sells where price is not null)</string>
+		<string>-- find beers sold at the highest price
+
+select beer
+from sells
+where price &gt;= any (select price from sells where price is not null)</string>
+		<string>-- exists
+
+-- find unique beer by its manufacturer
+
+select name
+from beers b1
+where not exists(select name from beers b2 where
+	b2.name != b1.name and b2.manf = b1.manf)</string>
+		<string>-- with subquery
+select bar
+from sells S
+where beer = 'Summerbrew' and 
+	price = 
+		(select price 
+		 from sells
+		 where bar = 'Joe''s bar' and
+			beer = 'Bud')</string>
+		<string>-- aggregation
+
+SELECT beer, AVG(price)
+FROM Sells
+GROUP BY beer</string>
+		<string>-- insert into Frequents values('Jennifer', 'Joe''s bar');</string>
+		<string>drop table if exists Beers;
+create table Beers(name varchar(100), manf varchar(100), primary key(name, manf));
+insert into Beers values('Bud', 'Anheuser-Busch');
+insert into Beers values('Bud Lite', 'Anheuser-Busch');
+insert into Beers values('Michelob', 'Anheuser-Busch');
+insert into Beers values('Summerbrew', 'Pete''s');
+drop table if exists Bars;
+create table Bars(name varchar(100) primary key, addr varchar(100));
+insert into Bars values('Joe''s bar', 'Maple St.');
+insert into Bars values('Bob''s bar', 'Maple St.');
+insert into Bars values('Mary''s bar', 'Sunny Dr.');
+drop table if exists Drinkers;
+create table Drinkers(name varchar(100) primary key, addr varchar(100),
+	phone varchar(20));
+insert into Drinkers values('Steve', 'Vermont St.', '213-555-1234');
+insert into Drinkers values('Bill', 'Jefferson St.', '213-555-0101');
+insert into Drinkers values('Jennifer', 'Maple St.', '626-552-1234');
+drop table if exists Sells;
+create table Sells(bar varchar(100) references Bars(name), 
+	beer varchar(100) references Beers(name), 
+	price int, primary key(bar, beer));
+insert into Sells values('Joe''s bar', 'Bud', 3);
+insert into Sells values('Joe''s bar', 'Bud Lite', 3);
+insert into Sells values('Joe''s bar', 'Summerbrew', 4);
+insert into Sells values('Joe''s bar', 'Michelob', 3);
+insert into Sells values('Bob''s bar', 'Bud', 3);
+insert into Sells values('Bob''s bar', 'Summerbrew', 3);
+insert into Sells values('Mary''s bar', 'Bud', null);
+insert into Sells values('Mary''s bar', 'Bud Lite', 3);
+drop table if exists Likes;
+create table Likes(drinker varchar(100) references Drinker(name), 
+	beer varchar(100) references Beer(name) );
+insert into Likes values('Steve', 'Bud');
+insert into Likes values('Steve', 'Bud Lite');
+insert into Likes values('Steve', 'Michelob');
+insert into Likes values('Steve', 'Summerbrew');
+insert into Likes values('Bill', 'Bud');
+insert into Likes values('Jennifer', 'Bud');
+drop table if exists Frequents;
+create table Frequents(drinker varchar(100) references Drinker(name), 
+	bar varchar(100) references Bar(name), 
+	primary key (drinker, bar));
+insert into Frequents values('Steve', 'Joe''s bar');
+insert into Frequents values('Steve', 'Bob''s bar');
+insert into Frequents values('Bill', 'Mary''s bar');
+-- insert into Frequents values('Jennifer', 'Joe''s bar');</string>
+		<string>except
+-- these are pairs where drinker does go to bar that sells the beer
+(sele</string>
+		<string>SELECT name
+FROM Beers
+WHERE manf = 'Anheuser-Busch';
+SELECT *
+FROM Beers
+WHERE manf = 'Anheuser-Busch';
+SELECT name AS beer, manf
+FROM Beers
+WHERE manf = 'Anheuser-Busch';
+SELECT bar, beer,
+	price * 120 AS priceInYen
+FROM Sells;
+SELECT drinker, 'likes Bud' AS whoLikesBud
+FROM Likes
+WHERE beer = 'Bud';
+SELECT drinker, concat('likes ', beer) as whoLikesWhat
+FROM Likes;
+SELECT price
+FROM Sells
+WHERE bar = 'Joe''s Bar' AND
+		beer = 'Bud';
+SELECT name
+FROM Drinkers
+WHERE phone LIKE '%555-____';
+SELECT bar
+FROM Sells
+WHERE price &lt; 2.00 OR price &gt;= 2.00;
+select count(*)
+from Sells;
+select count(price)
+from Sells;
+SELECT bar
+FROM Sells
+WHERE price &lt; 2.00 OR price &gt;= 2.00 OR price is null;
+-- multi-relation queries
+
+SELECT beer
+FROM Likes, Frequents
+WHERE bar = 'Joe''s Bar' AND
+		Frequents.drinker = Likes.drinker;
+-- tuple variable
+-- find all pairs of beers made by same manf.
+
+SELECT b1.name, b2.name
+FROM Beers b1, Beers b2
+WHERE b1.manf = b2.manf AND
+		b1.name &lt; b2.name;
+-- subqueries
+
+-- bars that sell summerbrew at same price as bud solde at joe
+
+-- without subquery
+select S.bar
+from sells S, sells S1
+where S.beer = 'Summerbrew' and 
+	S.price = S1.price and
+	S1.bar = 'Joe''s bar' and
+	S1.beer = 'Bud';
+-- with subquery
+select bar
+from sells S
+where beer = 'Summerbrew' and 
+	price = 
+		(select price 
+		 from sells
+		 where bar = 'Joe''s bar' and
+			beer = 'Bud');
+-- find name and manf of beers that Bill likes
+
+-- without subquery
+select name, manf
+from beers, likes
+where beers.name = likes.beer and likes.drinker = 'Bill';
+-- with subquery
+select name, manf
+from beers
+where name in (select beer from likes where drinker = 'Bill');
+-- exists
+
+-- find unique beer by its manufacturer
+
+select name
+from beers b1
+where not exists(select name from beers b2 where
+	b2.name != b1.name and b2.manf = b1.manf);
+-- find beers sold at the highest price
+
+select beer
+from sells
+where price &gt;= all (select price from sells where price is not null);
+-- set 
+
+-- find drinker and beer s.t.
+-- drinker likes the beer
+-- and drinker frequents at least one bar that sells the beer
+
+(select drinker, beer
+from likes)
+union
+(select drinker, beer
+from frequents, sells
+where frequents.bar = sells.bar);
+-- no intersect in mysql
+-- alternative
+
+-- use join
+select distinct likes.drinker, likes.beer
+from likes, frequents, sells
+where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar;
+-- or 
+select drinker, beer
+from likes
+where  exists(
+	select * 
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar);
+-- find drinker, beer s.t.
+-- drinker likes the bear but does not go to any bar that sells the beer
+
+-- no difference/except in mysql
+(select drinker, beer
+from likes)
+except
+-- these are pairs where drinker does go to bar that sells the beer
+(select drinker, beer
+from frequents, sells
+where frequents.bar = sells.bar);
+select drinker, beer
+from likes
+where not exists(
+	select * 
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar);
+-- or use not in
+select drinker, beer
+from likes
+where (drinker, beer) not in (
+	select frequents.drinker, sells.beer
+	from frequents, sells
+	where likes.drinker = frequents.drinker
+	and likes.beer = sells.beer 
+	and frequents.bar = sells.bar);
+-- or use left outer join
+
+select distinct likes.drinker, likes.beer
+from likes left outer join 
+	(select distinct frequents.drinker, sells.beer 
+		from frequents, sells
+		where frequents.bar = sells.bar) as t
+ on likes.drinker = t.drinker
+	and likes.beer = t.beer
+where t.drinker is null and t.beer is null;
+-- check all results of left outer join
+select *
+from likes left outer join 
+	(select distinct frequents.drinker, sells.beer 
+		from frequents, sells
+		where frequents.bar = sells.bar) as t
+ on likes.drinker = t.drinker
+	and likes.beer = t.beer;
+-- note that this does not work
+-- it will return drinker and beer as long as 
+-- there is another drinker in frequents
+select distinct likes.drinker, likes.beer
+from likes, frequents, sells
+where (likes.drinker != frequents.drinker
+	or likes.beer != sells.beer)
+	and frequents.bar = sells.bar;
+-- aggregation
+
+SELECT beer, AVG(price)
+FROM Sells
+GROUP BY beer;
+-- find avg price of beer either served by at least 3 bars or
+-- manf by Pete's
+SELECT beer, AVG(price)
+FROM Sells
+GROUP BY beer
+HAVING COUNT(bar) &gt;= 3 OR
+	beer IN (SELECT name
+			   FROM Beers
+			   WHERE manf = 'Pete''s')</string>
+		<string>SELECT name
+FROM Beers
+WHERE manf = 'Anheuser-Busch'</string>
+		<string>-- subqueries
+
+-- bars that sell summerbrew at same price as bud solde at joe
+
+-- without subquery
+select S.bar
+from sells S, sells S1
+where S.beer = 'Summerbrew' and 
+	S.price = S1.price and
+	S1.bar = 'Joe''s bar' and
+	S1.beer = 'Bud'</string>
+	</array>
+	<key>rdbms_type</key>
+	<string>mysql</string>
+	<key>rdbms_version</key>
+	<string>5.6.27</string>
+	<key>version</key>
+	<integer>1</integer>
+</dict>
+</plist>
